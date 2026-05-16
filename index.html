@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gustavo Mendes | Engenharia de Software</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --accent: #7c3aed;
+      --accent2: #06d6a0;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --border: #22222e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* NOISE OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent2);
+      letter-spacing: 0.1em;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent2); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(124,58,237,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 80%, rgba(6,214,160,0.08) 0%, transparent 60%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 700px; }
+
+    .hero-tag {
+      display: inline-block;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.12em;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 500px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn {
+      padding: 0.8rem 1.8rem;
+      border-radius: 4px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+    }
+    .btn-primary:hover { background: #6d28d9; transform: translateY(-2px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent2); color: var(--accent2); transform: translateY(-2px); }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+    }
+
+    /* SECTIONS */
+    section { padding: 6rem 4rem; }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent2);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 3rem;
+    }
+
+    /* SOBRE */
+    .about {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1.05rem;
+      margin-bottom: 1rem;
+    }
+
+    .about-text p strong { color: var(--text); }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--accent); }
+
+    .stat-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* PROJETOS */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .project-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .project-card:hover::before { transform: scaleX(1); }
+
+    .project-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent2);
+      background: rgba(6,214,160,0.1);
+      border: 1px solid rgba(6,214,160,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .project-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    .project-card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .project-footer {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .tech-pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    /* SKILLS */
+    .skills { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .skill-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      transition: all 0.2s;
+    }
+    .skill-item:hover { border-color: var(--accent); }
+
+    .skill-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: rgba(124,58,237,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .skill-name { font-size: 0.9rem; font-weight: 600; }
+    .skill-level { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent2); }
+
+    /* CONTATO */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .contact-info p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .contact-link:hover { border-color: var(--accent2); color: var(--accent2); transform: translateX(4px); }
+
+    .contact-link-icon { font-size: 1.2rem; }
+    .contact-link-label { font-size: 0.9rem; font-weight: 600; }
+    .contact-link-sub { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+
+    /* FOOTER */
+    footer {
+      padding: 2rem 4rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    footer p {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    footer span { color: var(--accent2); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section, .hero { padding: 4rem 1.5rem; }
+      .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">gm.dev</span>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#projetos">Projetos</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <span class="hero-tag">// Engenharia de Software · 1º Semestre</span>
+      <h1>Gustavo<br/><span>Mendes</span></h1>
+      <p class="hero-sub">
+        Estudante de Engenharia de Software apaixonado por tecnologia,
+        código limpo e soluções que fazem diferença no mundo real.
+      </p>
+      <div class="hero-cta">
+        <a href="#projetos" class="btn btn-primary">Ver Projetos</a>
+        <a href="#contato" class="btn btn-outline">Entrar em Contato</a>
+      </div>
+    </div>
+    <div class="scroll-hint">scroll</div>
+  </section>
+
+  <!-- SOBRE -->
+  <section class="about" id="sobre">
+    <div class="section-label">// 01. sobre mim</div>
+    <div class="about-grid">
+      <div class="about-text">
+        <h2 class="section-title">Quem sou eu</h2>
+        <p>
+          Olá! Sou <strong>Gustavo Mendes</strong>, estudante de
+          <strong>Engenharia de Software</strong> no primeiro semestre.
+          Estou construindo minha base em programação, lógica computacional
+          e as boas práticas que norteiam o desenvolvimento de software moderno.
+        </p>
+        <p>
+          Acredito que a tecnologia tem o poder de transformar vidas,
+          e quero fazer parte dessa transformação através de código
+          bem estruturado e soluções criativas.
+        </p>
+        <p>
+          Atualmente focado em aprender <strong>fundamentos de programação</strong>,
+          <strong>versionamento com Git/GitHub</strong> e
+          <strong>desenvolvimento web</strong>.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-num">01</div>
+          <div class="stat-label">Semestre em andamento</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Vontade de aprender</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Dedicação aos projetos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">Git</div>
+          <div class="stat-label">Ferramenta em uso</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJETOS -->
+  <section id="projetos">
+    <div class="section-label">// 02. projetos</div>
+    <h2 class="section-title">Meus Projetos</h2>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <span class="project-tag">ACADÊMICO · v1.0</span>
+        <h3>Portfólio Pessoal</h3>
+        <p>Página web desenvolvida como projeto inicial do semestre, aplicando HTML, CSS e conceitos de design responsivo. Versionada com Git.</p>
+        <div class="project-footer">
+          <span class="tech-pill">HTML</span>
+          <span class="tech-pill">CSS</span>
+          <span class="tech-pill">Git</span>
+          <span class="tech-pill">GitHub Pages</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <span class="project-tag">ACADÊMICO</span>
+        <h3>Repositório PortfolioHUB</h3>
+        <p>Repositório organizado com boas práticas de versionamento, estrutura de pastas, README documentado e integração com LinkedIn.</p>
+        <div class="project-footer">
+          <span class="tech-pill">Git</span>
+          <span class="tech-pill">GitHub</span>
+          <span class="tech-pill">Markdown</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <span class="project-tag">EM BREVE</span>
+        <h3>Próximos Projetos</h3>
+        <p>Novos projetos serão adicionados ao longo do curso, explorando algoritmos, estruturas de dados e desenvolvimento de aplicações.</p>
+        <div class="project-footer">
+          <span class="tech-pill">Em desenvolvimento</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="skills" id="skills">
+    <div class="section-label">// 03. habilidades</div>
+    <h2 class="section-title">Skills Técnicas</h2>
+    <div class="skills-grid">
+      <div class="skill-item">
+        <div class="skill-icon">🔧</div>
+        <div>
+          <div class="skill-name">Git</div>
+          <div class="skill-level">Iniciante</div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🐙</div>
+        <div>
+          <div class="skill-name">GitHub</div>
+          <div class="skill-level">Iniciante</div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🌐</div>
+        <div>
+          <div class="skill-name">HTML</div>
+          <div class="skill-level">Básico</div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🎨</div>
+        <div>
+          <div class="skill-name">CSS</div>
+          <div class="skill-level">Básico</div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">💡</div>
+        <div>
+          <div class="skill-name">Lógica de Prog.</div>
+          <div class="skill-level">Aprendendo</div>
+        </div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">📝</div>
+        <div>
+          <div class="skill-name">Markdown</div>
+          <div class="skill-level">Básico</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section id="contato">
+    <div class="section-label">// 04. contato</div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h2 class="section-title">Vamos<br/>conversar?</h2>
+        <p>Estou aberto a colaborações acadêmicas, troca de conhecimento e oportunidades de aprendizado. Não hesite em entrar em contato!</p>
+      </div>
+      <div class="contact-links">
+        <a href="https://github.com/SEU-USUARIO" class="contact-link" target="_blank">
+          <span class="contact-link-icon">🐙</span>
+          <div>
+            <div class="contact-link-label">GitHub</div>
+            <div class="contact-link-sub">github.com/SEU-USUARIO</div>
+          </div>
+        </a>
+        <a href="https://www.linkedin.com/in/gustavo-mendes-4286422b4" class="contact-link" target="_blank">
+          <span class="contact-link-icon">💼</span>
+          <div>
+            <div class="contact-link-label">LinkedIn</div>
+            <div class="contact-link-sub">linkedin.com/in/gustavo-mendes-4286422b4</div>
+          </div>
+        </a>
+        <a href="mailto:seu-email@email.com" class="contact-link">
+          <span class="contact-link-icon">✉️</span>
+          <div>
+            <div class="contact-link-label">E-mail</div>
+            <div class="contact-link-sub">seu-email@email.com</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 <span>Gustavo Mendes</span> · Engenharia de Software</p>
+    <p>Feito com <span>♥</span> e muito Git</p>
+  </footer>
+
+</body>
+</html>
